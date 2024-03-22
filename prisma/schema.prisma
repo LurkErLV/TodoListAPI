@@ -14,9 +14,18 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  login String @unique
-  email String @unique
-  password String
+  id           Int    @id @default(autoincrement())
+  login        String @unique
+  email        String @unique
+  password     String
   refreshToken String
+  Task         Task[]
+}
+
+model Task {
+  id          Int     @id @default(autoincrement())
+  done        Boolean @default(false)
+  task        String
+  author      User    @relation(fields: [authorEmail], references: [email])
+  authorEmail String
 }
