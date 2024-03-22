@@ -89,7 +89,18 @@ PATCH http://localhost:3000/api/tasks/done/:id
 
 #### Required "id" in route.
 
-#### Returns JSON with task.
+#### Returns JSON with updated task.
+
+### Update task description
+```http
+PATCH http://localhost:3000/api/tasks/update/:id
+```
+
+#### Required "access_token" in Bearer.
+
+#### Required "id" in route.
+
+#### Returns JSON with updated task.
 
 
 ## DOTENV
