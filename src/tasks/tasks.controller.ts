@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ToggleDoneTaskDto } from './dto/toggleDone-task.dto';
+import { TokenTaskDto } from './dto/token-task.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -10,13 +10,25 @@ export class TasksController {
 
   @UseGuards(AuthGuard)
   @Post("/create")
-  create(@Body() createTaskDto: CreateTaskDto) {
-    return this.tasksService.create(createTaskDto);
+  create(@Body() createTaskDto: CreateTaskDto, @Req() request: Request) {
+    return this.tasksService.create(createTaskDto, request);
   }
 
   @UseGuards(AuthGuard)
   @Patch("/done/:id")
-  done(@Param('id') id: string, @Body() updateTaskDto: ToggleDoneTaskDto) {
-    return this.tasksService.toggleIsDone(id, updateTaskDto);
+  done(@Param('id') id: string, @Req() request: Request) {
+    return this.tasksService.toggleIsDone(id, request);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get()
+  getAll(@Req() request: Request) {
+    return this.tasksService.getAll(request);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete("/delete/:id")
+  delete(@Param('id') id: string, @Req() request: Request) {
+    return this.tasksService.delete(id, request);
   }
 }

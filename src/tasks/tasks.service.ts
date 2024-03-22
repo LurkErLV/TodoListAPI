@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Param } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { IToken } from 'src/types/token';
-import { ToggleDoneTaskDto } from './dto/toggleDone-task.dto';
+import { TokenTaskDto } from './dto/token-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -12,8 +12,9 @@ export class TasksService {
     private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
-  async create(createTaskDto: CreateTaskDto) {
-    const decodedToken: IToken = this.jwtService.decode(createTaskDto.token);
+  async create(createTaskDto: CreateTaskDto, request: Request) {
+    const accessToken = request.headers['authorization'].split(' ')[1];
+    const decodedToken: IToken = this.jwtService.decode(accessToken);
 
     const user = await this.prisma.user.findFirst({
       where: {
@@ -40,7 +41,7 @@ export class TasksService {
       });
   }
 
-  async toggleIsDone(id: string, updateTaskDto: ToggleDoneTaskDto) {
+  async toggleIsDone(id: string, request: Request) {
     const task = await this.prisma.task.findFirst({
       where: {
         id: parseInt(id),
@@ -51,7 +52,9 @@ export class TasksService {
       throw new HttpException('Task not found', HttpStatus.NOT_FOUND);
     }
 
-    const decodedToken: IToken = this.jwtService.decode(updateTaskDto.token);
+    const accessToken = request.headers['authorization'].split(' ')[1];
+
+    const decodedToken: IToken = this.jwtService.decode(accessToken);
 
     if (task.authorEmail !== decodedToken.email) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -74,5 +77,43 @@ export class TasksService {
       });
 
     return {...task, done: !task.done};
+  }
+
+  async getAll(request: Request) {
+    const accessToken = request.headers['authorization'].split(' ')[1];
+
+    const decodedToken: IToken = this.jwtService.decode(accessToken);
+
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        authorEmail: decodedToken.email
+      }
+    });
+
+    return {tasks};
+  }
+
+  async delete(id: string, request: Request) {
+    const accessToken = request.headers['authorization'].split(' ')[1];
+
+    const decodedToken: IToken = this.jwtService.decode(accessToken);
+
+    const task = await this.prisma.task.findFirst({
+      where: {
+        id: parseInt(id)
+      }
+    });
+
+    if (task.authorEmail !== decodedToken.email) {
+      throw new HttpException("Forbidden", HttpStatus.FORBIDDEN);
+    }
+
+    await this.prisma.task.delete({
+      where: {
+        id: parseInt(id)
+      }
+    }).catch(_ => {
+      throw new HttpException("Internal error", HttpStatus.INTERNAL_SERVER_ERROR);
+    });
   }
 }

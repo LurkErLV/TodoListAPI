@@ -3,13 +3,14 @@
 </p>
 
 <h1 align="center">API Documentation</h1>
+<br/>
 <h3>- Swagger</h3>
 
 #### API Description
 ```http 
 GET http://localhost:3000/api
 ```
-
+<br/>
 <h3>- Authentication</h3>
 
 ### Register
@@ -44,6 +45,52 @@ POST http://localhost:3000/api/auth/refresh
 #### Required "access_token" in Bearer.
 
 #### Returns JSON with "access_token" and "refresh_token".
+
+<br/>
+<h3>- Task managment</h3>
+
+### Create task
+```http
+POST http://localhost:3000/api/tasks/create
+```
+#### Required parameters in body:
+##### 1. "task" (task description);
+
+#### Required "access_token" in Bearer.
+
+#### Returns 201 status code.
+
+### Delete task
+```http
+DELETE http://localhost:3000/api/tasks/delete/:id
+```
+
+#### Required "access_token" in Bearer.
+
+#### Required "id" in route.
+
+#### Returns 200 status code.
+
+### Get all user tasks
+```http
+GET http://localhost:3000/api/tasks
+```
+
+#### Required "access_token" in Bearer.
+
+#### Returns JSON with array "tasks".
+
+### Toggle task done status
+```http
+PATCH http://localhost:3000/api/tasks/done/:id
+```
+
+#### Required "access_token" in Bearer.
+
+#### Required "id" in route.
+
+#### Returns JSON with task.
+
 
 ## DOTENV
 ```ts

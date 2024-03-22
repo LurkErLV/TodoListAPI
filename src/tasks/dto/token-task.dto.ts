@@ -1,6 +1,6 @@
 import { IsNotEmpty } from "class-validator";
 
-export class ToggleDoneTaskDto {
+export class TokenTaskDto {
     @IsNotEmpty()
     token: string;
 }
